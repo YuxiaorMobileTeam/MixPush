@@ -27,10 +27,8 @@ public class HuaweiPushProvider extends BaseMixPushProvider {
 
     MixPushHandler handler = MixPushClient.getInstance().getHandler();
 
-
-    @Override
-    public void register(Context context, RegisterType type) {
-        syncGetToken(context);
+     public v
+       syncGetToken(context);
     }
 
     @Override
@@ -53,9 +51,10 @@ public class HuaweiPushProvider extends BaseMixPushProvider {
             return false;
         }
         return true;
-//        return canHuaWeiPush();
+        // return canHuaWeiPush();
     }
 
+     
     /**
      * 判断是否可以使用华为推送
      */
@@ -63,8 +62,8 @@ public class HuaweiPushProvider extends BaseMixPushProvider {
         int emuiApiLevel = 0;
         try {
             Class<?> cls = Class.forName("android.os.SystemProperties");
-            Method method = cls.getDeclaredMethod("get", new Class[]{String.class});
-            emuiApiLevel = Integer.parseInt((String) method.invoke(cls, new Object[]{"ro.build.hw_emui_api_level"}));
+            Method method = cls.getDeclaredMethod("get", new Class[] { String.class });
+            emuiApiLevel = Integer.parseInt((String) method.invoke(cls, new Object[] { "ro.build.hw_emui_api_level" }));
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -79,7 +78,8 @@ public class HuaweiPushProvider extends BaseMixPushProvider {
 
     @Override
     public String getRegisterId(Context context) {
-        try {
+        new Thread(new Runnable() {
+            try {
             // read from agconnect-services.json
             String appId = AGConnectServicesConfig.fromContext(context).getString("client/app_id");
             regId = HmsInstanceId.getInstance(context).getToken(appId, "HCM");
@@ -89,9 +89,10 @@ public class HuaweiPushProvider extends BaseMixPushProvider {
             handler.getLogger().log(TAG, "hms get token failed " + e.toString() + " https://developer.huawei.com/consumer/cn/doc/development/HMSCore-References-V5/error-code-0000001050255690-V5", e);
             e.printStackTrace();
         }
+        }).start();
+        
         return null;
     }
-
 
     private void syncGetToken(final Context context) {
         new Thread() {
@@ -100,7 +101,8 @@ public class HuaweiPushProvider extends BaseMixPushProvider {
                 String regId = getRegisterId(context);
                 if (!TextUtils.isEmpty(regId)) {
                     MixPushPlatform mixPushPlatform = new MixPushPlatform(HuaweiPushProvider.HUAWEI, regId);
-                    MixPushClient.getInstance().getHandler().getPushReceiver().onRegisterSucceed(context, mixPushPlatform);
+                    MixPushClient.getInstance().getHandler().getPushReceiver().onRegisterSucceed(context,
+                            mixPushPlatform);
                 }
             }
         }.start();
